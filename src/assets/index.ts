@@ -1,0 +1,12 @@
+export { default as LogoLarge } from "./images/logo-large.svg";
+export { default as LogoSmall } from "./images/logo-small.svg";
+export { default as Completed } from "./images/icon-completed.svg";
+export { default as DownArrow } from "./images/icon-down-arrow.svg";
+export { default as IconNewPb } from "./images/icon-new-pb.svg";
+export { default as IconPersonalBest } from "./images/icon-personal-best.svg";
+export { default as IconRestart } from "./images/icon-restart.svg";
+export { default as PatternConfetti } from "./images/pattern-confetti.svg";
+export { default as PatternStar1 } from "./images/pattern-star-1.svg";
+export { default as PatternStar2 } from "./images/pattern-star-2.svg";
+export { default as Favicon32x32 } from "./images/favicon-32x32.png";
+export { default as Scroll } from "./images/scroll.png"
