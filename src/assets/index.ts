@@ -10,3 +10,7 @@ export { default as PatternStar1 } from "./images/pattern-star-1.svg";
 export { default as PatternStar2 } from "./images/pattern-star-2.svg";
 export { default as Favicon32x32 } from "./images/favicon-32x32.png";
 export { default as Scroll } from "./images/scroll.png"
+export { default as Error } from "./audio/error.mp3"
+export { default as KeyPressed } from "./audio/pressed.mp3"
+export { default as Start } from "./audio/start.mp3"
+export { default as Success } from "./audio/success.mp3"
