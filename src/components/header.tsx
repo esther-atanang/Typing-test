@@ -67,21 +67,21 @@ const Header = () => {
   };
 
   return (
-    <section className="flex items-center justify-between p-10 md:px-32">
+    <section className="flex items-center justify-between p-8 sm:p-10 md:px-32">
       <div className="flex items-center gap-3">
-        <img src={LogoSmall} alt="logo" />
-        <h1 className=" text-foreground font-bold text-2xl">TypeMaster</h1>
+        <img className="h-16 w-16 md:h-8 md:w-8" src={LogoSmall} alt="logo" />
+        <h1 className="hidden sm:block text-foreground font-bold text-2xl">TypeMaster</h1>
       </div>
 
       <div className="flex items-stretch gap-3">
-        <div className="flex min-h-11 items-center gap-4 rounded-sm border border-neutral-700/90 bg-neutral-800 px-5 py-2">
+        <div className="flex min-h-11 items-center gap-4 rounded-sm border border-neutral-700/90 bg-neutral-800 px-3 sm:px-5 py-1">
           <p className="flex items-center gap-1 text-xs uppercase tracking-[0.2em] text-neutral-400">
             <img
               alt="Personal Best"
-              className="h-4 w-4"
+              className="h-4 w-4 hidden sm:block"
               src={IconPersonalBest}
             />
-            Best
+            <span>Best</span>
           </p>
 
           <h2 className="text-lg font-bold uppercase text-yellow-400">

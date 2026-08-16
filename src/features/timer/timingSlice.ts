@@ -1,6 +1,5 @@
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 import type { Duration } from "../userSettings/settingSlice";
-import { getTimer } from "../../lib/utils";
 
 type TimerState = {
   time: number;

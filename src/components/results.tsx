@@ -32,7 +32,7 @@ const ResultPage = ({ totalPassageLength, onReset}: pageProps) => {
   }
 
   return (
-    <div className="w-full h-dvh md:h-full bg-neutral-900 flex items-center justify-center relative overflow-hidden">
+    <div className="w-full p-8 h-dvh md:h-full bg-neutral-900 flex items-center justify-center relative overflow-hidden">
       {/* Decorative stars/elements */}
 
       <div className="absolute top-8 left-8">
@@ -43,7 +43,7 @@ const ResultPage = ({ totalPassageLength, onReset}: pageProps) => {
       </div>
       <div className="absolute bottom-32 left-8 text-blue-400 text-2xl">✦</div>
 
-      <img className={type == "above" ? 'w-full absolute bottom-0 md:-bottom-40 right-0 left-0 opacity-80 pointer-events-none': "hidden"} src={PatternConfetti} alt="confetti" />
+      <img className={type == "above" ? 'w-full absolute animate-in bottom-0 md:-bottom-40 right-0 left-0 opacity-80 pointer-events-none': "hidden"} src={PatternConfetti} alt="confetti" />
 
       {/* Main content container */}
       <div className="w-full max-w-lg flex flex-col items-center justify-end text-center gap-4 md:gap-6">
@@ -58,7 +58,7 @@ const ResultPage = ({ totalPassageLength, onReset}: pageProps) => {
             </div>
           ) : (
             <div className="w-16 h-16 md:w-20 md:h-20 flex items-center justify-center">
-              <img src={IconNewPb} alt="Personal best" className="w-12 h-12 md:w-16 md:h-16 text-yellow-400" />
+              <img src={IconNewPb} alt="Personal best" className="w-12 h-12 md:w-16 md:h-16 animate-in text-yellow-400" />
             </div>
           )}
         </div>
@@ -86,7 +86,7 @@ const ResultPage = ({ totalPassageLength, onReset}: pageProps) => {
           {/* Accuracy Stat */}
           <div className="flex-1 bg-neutral-800 rounded-lg p-3 md:p-4 border border-neutral-700">
             <p className="text-neutral-400 text-xs md:text-sm mb-2">Accuracy</p>
-            <p className="text-2xl md:text-3xl font-bold text-red-500">
+            <p className={`text-2xl md:text-3xl font-bold ${ Math.max(lastResult?.acc || 0, 0) < 50 ? 'text-red-500' : 'text-green-500'}`}>
               {lastResult?.acc || 0}%
             </p>
           </div>

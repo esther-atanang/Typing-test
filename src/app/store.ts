@@ -3,11 +3,16 @@ import settingsReducer from "../features/userSettings/settingSlice"
 import timeReducer from "../features/timer/timingSlice"
 import progressReducer from "../features/userProgress/gameSlice"
 import resultReducer, { type Result } from "../features/result/resultSlice"
-import { persistStore, persistReducer } from 'redux-persist'
+import { persistStore, persistReducer, type WebStorage } from 'redux-persist'
 // import storage from 'redux-persist/lib/storage'
 import storage from "redux-persist/lib/storage"
 import createTransform from "redux-persist/es/createTransform";
 //I need to transform this by changing the wpm to 0
+
+
+interface WebSt extends WebStorage{
+  default: any
+}
 
 const resultTransform = createTransform<Result, Result>(
   (state: Result) => ({
@@ -23,10 +28,11 @@ const resultTransform = createTransform<Result, Result>(
   }
 )
 
+const ExtendedStorage = storage as WebSt
 
 const rootPersistConfig = {
     key: 'root',
-    storage: storage.default,
+    storage: ExtendedStorage.default,
     whitelist: ['result', 'settings'],
     transforms: [resultTransform]
 }
