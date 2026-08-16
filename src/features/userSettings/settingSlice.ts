@@ -3,12 +3,14 @@ import { createSlice, type PayloadAction } from "@reduxjs/toolkit";
 
 export type Difficulty = "easy" | "medium" | "hard";
 export type Duration = "15s" | "30s" | "60s" | "120s" | "passage";
+export type Theme = "light" | "dark"
 
 export interface Setting{
     difficulty: Difficulty,
     level : number,
     timerMode: Duration,
     audio: boolean
+    theme: Theme
 }
 
 const stages = {
@@ -21,7 +23,8 @@ const initialState: Setting = {
     difficulty: 'easy',
     level: 1,
     timerMode: '60s',
-    audio: true
+    audio: true,
+    theme: "dark",
 }
 
 export const settingSlice = createSlice({
@@ -51,6 +54,9 @@ export const settingSlice = createSlice({
         },
         setAudio: (state, action:PayloadAction<boolean>) =>{
             state.audio = action.payload
+        },
+        setTheme: (state, action:PayloadAction<Theme>) =>{
+            state.theme = action.payload
         }
     },
 }
@@ -59,6 +65,6 @@ export const settingSlice = createSlice({
 
 
 //This are the actions that i will dispatch.
-export const { raiseDifficulty, raiseLevel, setDuration, setAudio } = settingSlice.actions
+export const { raiseDifficulty, raiseLevel, setDuration, setAudio , setTheme} = settingSlice.actions
 
 export default settingSlice.reducer

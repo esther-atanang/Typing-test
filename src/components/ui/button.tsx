@@ -1,4 +1,3 @@
-import { useState } from "react"
 import { Button as ButtonPrimitive } from "@base-ui/react/button"
 import { cva, type VariantProps } from "class-variance-authority"
 
@@ -45,46 +44,12 @@ function Button({
   className,
   variant = "default",
   size = "default",
-  onPointerDown,
-  onPointerUp,
-  onPointerLeave,
-  onPointerCancel,
   ...props
 }: ButtonPrimitive.Props & VariantProps<typeof buttonVariants>) {
-  const [isPressed, setIsPressed] = useState(false)
-
-  const handlePointerDown = (event: React.PointerEvent<HTMLButtonElement>) => {
-    setIsPressed(true)
-    onPointerDown?.(event)
-  }
-
-  const handlePointerUp = (event: React.PointerEvent<HTMLButtonElement>) => {
-    setIsPressed(false)
-    onPointerUp?.(event)
-  }
-
-  const handlePointerLeave = (event: React.PointerEvent<HTMLButtonElement>) => {
-    setIsPressed(false)
-    onPointerLeave?.(event)
-  }
-
-  const handlePointerCancel = (event: React.PointerEvent<HTMLButtonElement>) => {
-    setIsPressed(false)
-    onPointerCancel?.(event)
-  }
-
   return (
     <ButtonPrimitive
       data-slot="button"
-      data-pressed={isPressed ? "true" : undefined}
-      onPointerDown={handlePointerDown}
-      onPointerUp={handlePointerUp}
-      onPointerLeave={handlePointerLeave}
-      onPointerCancel={handlePointerCancel}
-      className={cn(
-        buttonVariants({ variant, size, className }),
-        isPressed && "translate-y-px scale-[0.98] shadow-inner"
-      )}
+      className={cn(buttonVariants({ variant, size, className }))}
       {...props}
     />
   )

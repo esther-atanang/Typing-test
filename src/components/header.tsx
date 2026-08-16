@@ -1,17 +1,13 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import {
-  IconNewPb,
   IconPersonalBest,
-  LogoLarge,
   LogoSmall,
-  Scroll,
 } from "../assets";
-import { Clock3, Settings, RotateCcwIcon } from "lucide-react";
+import { Clock3, Settings, RotateCcwIcon, XIcon } from "lucide-react";
 import {
   Sheet,
   SheetClose,
   SheetContent,
-  SheetDescription,
   SheetFooter,
   SheetHeader,
   SheetTitle,
@@ -20,7 +16,6 @@ import {
 import {
   Dialog,
   DialogContent,
-  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -28,21 +23,23 @@ import {
 import {
   Table,
   TableBody,
-  TableCaption,
   TableCell,
-  TableFooter,
   TableHead,
   TableHeader,
   TableRow,
 } from "./ui/table";
-import { useAppSelector } from "../app/hooks";
+import { useAppDispatch, useAppSelector } from "../app/hooks";
+import { setAudio, setTheme } from "../features/userSettings/settingSlice";
+
+export type Theme = "dark" | "light";
 
 const Header = () => {
   const result = useAppSelector((state) => state.result);
   const progress = useAppSelector((state) => state.progress);
+  const settings = useAppSelector((state) => state.settings);
+  const dispatch = useAppDispatch();
   const [mode, setMode] = useState("text");
-  const [theme, setTheme] = useState("dark");
-  const [sound, setSound] = useState("on");
+
 
   const bestScore = result?.history.reduce(
     (a, b) => {
@@ -52,10 +49,28 @@ const Header = () => {
     { wpm: 0 }
   );
 
+
+  useEffect(() => {
+    const sess = localStorage.getItem('persist:root');
+    if (sess) {
+      const payload = JSON.parse(sess);
+      const theme = JSON.parse(payload['settings'])['theme']
+      document.documentElement.classList.add(theme);
+    }
+  }, [])
+
+
+  const handleTheme = (theme: "light" | "dark") => {
+    document.documentElement.classList.remove("light", "dark");
+    dispatch(setTheme(theme))
+    document.documentElement.classList.add(theme);
+  };
+
   return (
     <section className="flex items-center justify-between p-10 md:px-32">
       <div className="flex items-center gap-3">
-        <img src={LogoLarge} alt="logo" />
+        <img src={LogoSmall} alt="logo" />
+        <h1 className=" text-foreground font-bold text-2xl">TypeMaster</h1>
       </div>
 
       <div className="flex items-stretch gap-3">
@@ -86,54 +101,66 @@ const Header = () => {
               </button>
             </SheetTrigger>
 
-            <SheetContent side="right">
-              <SheetHeader className="*:text-white">
-                <SheetTitle>
-                  <div className="flex items-center gap-2 px-4">
-                    <RotateCcwIcon />
-                    <h2 className="text-lg font-bold">History</h2>
+            <SheetContent side="right" showCloseButton={false}>
+              <div className="flex h-full min-h-0 flex-col">
+                <SheetHeader className="static shrink-0 *:text-foreground">
+                  <div className="flex items-center justify-between px-4">
+                    <SheetTitle>
+                      <div className="flex items-center gap-2">
+                        <RotateCcwIcon className="text-foreground w-4 h-4" />
+                        <h2 className="text-lg text-foreground font-bold">History</h2>
+                      </div>
+                    </SheetTitle>
+                    <SheetClose
+                      aria-label="Close history"
+                      render={
+                        <button className="flex h-8 w-8 items-center justify-center rounded-sm text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-foreground">
+                          <XIcon className="h-4 w-4" />
+                        </button>
+                      }
+                    />
                   </div>
-                </SheetTitle>
-              </SheetHeader>
+                </SheetHeader>
 
-              <div className="-mt-4 px-4 pb-4 pt-0">
-                <Table className="mt-0">
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Date</TableHead>
-                      <TableHead>Mode</TableHead>
-                      <TableHead>wpm</TableHead>
-                      <TableHead className="text-right">Acc</TableHead>
-                    </TableRow>
-                  </TableHeader>
+                <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-20 pt-0">
+                  <Table className="mt-0 border-separate border-spacing-y-1">
+                    <TableHeader className="sticky top-0 z-5 [&_th]:bg-neutral-800">
+                      <TableRow>
+                        <TableHead className="px-0 text-[0.65rem] font-semibold tracking-wide">Date</TableHead>
+                        <TableHead className="text-[0.65rem] font-semibold tracking-wide">Mode</TableHead>
+                        <TableHead className="text-center text-[0.65rem] font-semibold tracking-wide">wpm</TableHead>
+                        <TableHead className="text-right text-[0.65rem] font-semibold tracking-wide">Acc</TableHead>
+                      </TableRow>
+                    </TableHeader>
 
-                  <TableBody>                 
+                    <TableBody>
                       {
                         result.history.length > 0 && (
                           result.history.map((v) => {
                             return (
-                              <TableRow>
-                                <TableCell className="font-medium">{v.date}</TableCell>
-                                <TableCell>{v.mode}</TableCell>
-                                <TableCell>{v.wpm}</TableCell>
-                                <TableCell className="text-right">{v.acc}%</TableCell>
+                              <TableRow key={`${v.date}-${v.mode}-${v.wpm}-${v.acc}`} className="[&>td]:py-3.5">
+                                <TableCell className="border-l-0 px-0 font-medium text-neutral-400">{v.date}</TableCell>
+                                <TableCell className="text-neutral-400">{v.mode.replace(/s$/, "")}</TableCell>
+                                <TableCell className="text-center font-bold text-foreground">{v.wpm}</TableCell>
+                                <TableCell className={`border-r-0 text-right ${v.acc === 100 ? "text-yellow-400" : "text-neutral-400"}`}>{v.acc}%</TableCell>
                               </TableRow>
                             )
                           })
                         )
                       }
-                  </TableBody>
-                </Table>
-              </div>
-
-              <SheetFooter className="bg-neutral-700/30">
-                <div className="flex w-full items-center justify-between">
-                  <span className="text-xs uppercase tracking-wider text-neutral-400">
-                    TESTS TAKEN
-                  </span>
-                  <span className="text-sm font-bold text-white">{result.history.length}</span>
+                    </TableBody>
+                  </Table>
                 </div>
-              </SheetFooter>
+
+                <SheetFooter className="border-b-2 border-b-blue-500">
+                  <div className="flex w-full items-center justify-between">
+                    <span className="text-xs uppercase tracking-wider text-neutral-400">
+                      TESTS TAKEN
+                    </span>
+                    <span className="text-sm font-bold text-foreground">{result.history.length}</span>
+                  </div>
+                </SheetFooter>
+              </div>
             </SheetContent>
           </Sheet>
 
@@ -141,7 +168,7 @@ const Header = () => {
             <DialogTrigger disabled={progress?.begin}>
               <button
                 disabled={progress?.begin}
-                className="flex h-8 w-8 items-center justify-center rounded-sm bg-neutral-800 text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-white disabled:cursor-not-allowed disabled:bg-neutral-900 disabled:text-neutral-600 disabled:hover:bg-neutral-900 disabled:hover:text-neutral-600"
+                className="flex h-8 w-8 items-center justify-center rounded-sm bg-neutral-800 text-neutral-400 transition-colors hover:bg-neutral-700 hover:text-foreground disabled:cursor-not-allowed disabled:bg-neutral-900 disabled:text-neutral-600 disabled:hover:bg-neutral-900 disabled:hover:text-neutral-600"
               >
                 <Settings className="h-5 w-5" />
               </button>
@@ -149,7 +176,7 @@ const Header = () => {
 
             <DialogContent>
               <DialogHeader>
-                <DialogTitle className="uppercase">Settings</DialogTitle>
+                <DialogTitle className="uppercase text-foreground">Settings</DialogTitle>
               </DialogHeader>
 
               <div className="px-4 pb-4">
@@ -163,8 +190,8 @@ const Header = () => {
                       <button
                         onClick={() => setMode("text")}
                         className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${mode === "text"
-                            ? "bg-white text-black"
-                            : "border-neutral-700 text-neutral-400"
+                          ? "bg-white text-black"
+                          : "border-neutral-700 text-neutral-400"
                           }`}
                       >
                         TEXT
@@ -173,8 +200,8 @@ const Header = () => {
                       <button
                         onClick={() => setMode("code")}
                         className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${mode === "code"
-                            ? "bg-white text-black"
-                            : "border-neutral-700 text-neutral-400"
+                          ? "bg-white text-black"
+                          : "border-neutral-700 text-neutral-400"
                           }`}
                       >
                         CODE
@@ -189,20 +216,20 @@ const Header = () => {
 
                     <div className="flex gap-3">
                       <button
-                        onClick={() => setTheme("dark")}
-                        className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${theme === "dark"
-                            ? "bg-white text-black"
-                            : "border-neutral-700 text-neutral-400"
+                        onClick={() => handleTheme('dark')}
+                        className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${settings.theme === "dark"
+                          ? "bg-white text-black"
+                          : "border-neutral-700 text-neutral-400"
                           }`}
                       >
                         DARK
                       </button>
 
                       <button
-                        onClick={() => setTheme("light")}
-                        className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${theme === "light"
-                            ? "bg-white text-black"
-                            : "border-neutral-700 text-neutral-400"
+                        onClick={() => handleTheme("light")}
+                        className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${settings.theme === "light"
+                          ? "bg-white text-black"
+                          : "border-neutral-700 text-neutral-400"
                           }`}
                       >
                         LIGHT
@@ -217,20 +244,20 @@ const Header = () => {
 
                     <div className="flex gap-3">
                       <button
-                        onClick={() => setSound("on")}
-                        className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${sound === "on"
-                            ? "bg-white text-black"
-                            : "border-neutral-700 text-neutral-400"
+                        onClick={() => dispatch(setAudio(true))}
+                        className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${settings.audio === true
+                          ? "bg-white text-black"
+                          : "border-neutral-700 text-neutral-400"
                           }`}
                       >
                         ON
                       </button>
 
                       <button
-                        onClick={() => setSound("mute")}
-                        className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${sound === "mute"
-                            ? "bg-white text-black"
-                            : "border-neutral-700 text-neutral-400"
+                        onClick={() => dispatch(setAudio(false))}
+                        className={`flex-1 rounded-sm border px-4 py-2 text-sm font-medium ${settings.audio === false
+                          ? "bg-white text-black"
+                          : "border-neutral-700 text-neutral-400"
                           }`}
                       >
                         MUTE

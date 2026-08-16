@@ -2,7 +2,7 @@ import Header from "./components/header";
 import Menu from "./components/Menu";
 import ResultPage from "./components/results";
 import TypingArea from "./components/ui/typing";
-import { useEffect, useRef } from "react";
+import { useEffect, useRef} from "react";
 import data from './assets/data.json' with {type: 'json'}
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { setDuration, type Duration } from "./features/userSettings/settingSlice";
@@ -36,9 +36,11 @@ const App = () => {
   const audioRef = useRef<HTMLAudioElement>(null)
 
 
+
   function sound(type:AudioTypes, isPlay:boolean){
       if(audioRef.current !== null){
-        audioRef.current = null
+        audioRef.current.pause()
+       
       }
       audioRef.current = new Audio();
       if(isPlay){
@@ -161,10 +163,11 @@ const App = () => {
 
 
   return (
-    <main className="bg-neutral-900 relative flex flex-col h-screen gap-0 *:font-custom max-w-full text-white ">
+    <main className={` flex ${settings.theme} h-dvh max-w-full flex-col gap-0 bg-neutral-900 pt-8 text-white *:font-custom`}>
       <Header />
-      {((results.totalTypedWords !== passageText.length) && !session.isExpired) ? //TODO: this logic does not seeem to be enough 
+          {((results.totalTypedWords !== passageText.length) && !session.isExpired) ? //TODO: this logic does not seeem to be enough 
         <>
+
           <Menu
             onSetMode={handleTimer}
           />
@@ -172,7 +175,8 @@ const App = () => {
             onSound={sound} 
             onReset={handleReset}
             passage={passageText}
-          />
+            />
+         
         </>
         :
         (

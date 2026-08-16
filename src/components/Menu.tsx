@@ -1,7 +1,6 @@
-
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../app/hooks";
-import { raiseDifficulty, raiseLevel, type Difficulty, type Duration } from "../features/userSettings/settingSlice";
+import { raiseDifficulty, raiseLevel, setDuration, type Difficulty, type Duration } from "../features/userSettings/settingSlice";
 import { formatTime, getTimer } from "../lib/utils";
 import { setTime } from "../features/timer/timingSlice";
 
@@ -13,6 +12,9 @@ interface SelectElements extends HTMLSelectElement {
     value: Difficulty
 } 
 
+interface SelectDurationElements extends HTMLSelectElement {
+    value: Duration
+} 
 
 const Menu = ({onSetMode}: Props) => {
     const results = useAppSelector(state=>state.result);
@@ -20,6 +22,24 @@ const Menu = ({onSetMode}: Props) => {
     const settings = useAppSelector(state=>state.settings)
     const progress = useAppSelector(state=>state.progress)
     const dispatch = useAppDispatch();
+
+    const handleDifficultyChange = (difficulty: Difficulty, event?: React.MouseEvent<HTMLButtonElement>) => {
+        if (progress.begin) {
+            event?.preventDefault();
+            event?.stopPropagation();
+            return;
+        }
+        dispatch(raiseDifficulty(difficulty));
+    };
+
+    const handleModeChange = (mode: Duration, event?: React.MouseEvent<HTMLButtonElement>) => {
+        if (progress.begin) {
+            event?.preventDefault();
+            event?.stopPropagation();
+            return;
+        }
+        onSetMode(mode);
+    };
 
     useEffect(()=>{
        const sess = localStorage.getItem('persist:root');
@@ -37,30 +57,30 @@ const Menu = ({onSetMode}: Props) => {
     return (
         <section className='md:mx-32 border-b-[0.8px] border-neutral-800 pb-5'>
             {/* Mobile Stats Grid */}
-            <section className="lg:hidden grid grid-cols-3 gap-2 *:pr-2 *:border-r *:border-neutral-800 *:last:border-0 items-center text-xs">
-                <div className="flex items-center md:items-center flex-col gap-1">
+            <section className="xl:hidden grid grid-cols-3 divide-x divide-neutral-800 items-center text-xs">
+                <div className="flex flex-col items-center gap-1 px-3">
                     <p className="uppercase text-neutral-500 text-lg md:text-xs">wpm:</p>
-                    <p className="text-white font-semibold text-3xl md:text-base">{results.wpm}</p>
+                    <p className="min-w-[3ch] text-center font-semibold tabular-nums text-foreground text-3xl md:text-base">{results.wpm}</p>
                 </div>
-                <div className="flex items-center md:items-center flex-col gap-1">
+                <div className="flex flex-col items-center gap-1 px-3">
                     <p className="capitalize text-neutral-500 text-lg md:text-xs">Accuracy:</p>
-                    <p className="text-white font-semibold text-3xl md:text-base">{results.accuracy}%</p>
+                    <p className="min-w-[4ch] text-center font-semibold tabular-nums text-foreground text-3xl md:text-base">{results.accuracy}%</p>
                 </div>
-                <div className="flex items-center md:items-center flex-col gap-1">
+                <div className="flex flex-col items-center gap-1 px-3">
                     <p className="capitalize text-neutral-500 text-lg md:text-xs">Time:</p>
-                    <p className="text-yellow-400 font-semibold text-3xl md:text-base">{formatTime(session.time)}</p>
+                    <p className="w-[5ch] text-center font-semibold tabular-nums text-yellow-400 text-3xl md:text-base">{formatTime(session.time)}</p>
                 </div>
             </section>
 
             {/* Mobile Selects */}
-            <section className={`lg:hidden px-10 pt-5 flex md:flex-col gap-3 w-full transition-opacity duration-300 ${progress.begin ? "opacity-40 pointer-events-none" : "opacity-100"
+            <section className={`xl:hidden px-10 pt-5 flex md:flex-col gap-3 w-full transition-opacity duration-300 ${progress.begin ? "opacity-40 pointer-events-none" : "opacity-100"
                 }`}>
                 <select
                     defaultValue={settings.difficulty}
                     disabled={!!progress.begin}
                     value={settings.difficulty}
                     onChange={(e: React.ChangeEvent<SelectElements>)=>dispatch(raiseDifficulty(e.currentTarget.value))}
-                    className="w-full px-3 py-4 rounded-lg bg-neutral-800 text-white border border-neutral-700 cursor-pointer hover:border-neutral-600 transition-colors text-sm"
+                    className="w-full px-3 py-4 rounded-lg bg-neutral-800 text-foreground border border-neutral-700 cursor-pointer hover:border-neutral-600 transition-colors text-sm"
                 >
                     <option value="easy">Easy</option>
                     <option value="medium">Medium</option>
@@ -69,8 +89,8 @@ const Menu = ({onSetMode}: Props) => {
                 <select
                     defaultValue={settings.timerMode}
                     disabled={!!progress.begin}
-                    onChange={()=>onSetMode()}
-                    className="w-full px-3 py-4 rounded-lg bg-neutral-800 text-white border border-neutral-700 cursor-pointer hover:border-neutral-600 transition-colors text-sm"
+                    onChange={(e: React.ChangeEvent<SelectDurationElements>)=>dispatch(setDuration(e.currentTarget.value))}
+                    className="w-full px-3 py-4 rounded-lg bg-neutral-800 text-foreground border border-neutral-700 cursor-pointer hover:border-neutral-600 transition-colors text-sm"
                 >
                     <option value="15s">Timed (15s)</option>
                     <option value="30s">Timed (30s)</option>
@@ -81,117 +101,165 @@ const Menu = ({onSetMode}: Props) => {
             </section>
 
             {/* Desktop Layout */}
-            <section className="hidden lg:flex items-center gap-2 justify-between *:border-r *:border-neutral-800 *:last:border-0 text-sm">
-                <div className="flex w-full items-baseline gap-2">
-                    <p className="uppercase text-lg text-neutral-400">wpm:</p>
-                    <p className="text-white text-2xl font-semibold">{results.wpm}</p>
-                </div>
-                <div className="flex w-full items-baseline px-4 gap-2">
-                    <p className="capitalize text-lg text-neutral-400">Accuracy:</p>
-                    <p className="text-white text-2xl font-semibold">{results.accuracy}%</p>
-                </div>
+<section className={`hidden xl:flex xl:items-baseline xl:whitespace-nowrap`}>
+    <div className="flex items-baseline gap-2 border-r border-neutral-800 pr-4">
+        <p className="uppercase text-lg text-neutral-400">wpm:</p>
+        <p className="min-w-[3ch] text-2xl font-semibold tabular-nums text-foreground">{results.wpm}</p>
+    </div>
+    <div className="flex items-baseline gap-2 border-r border-neutral-800 px-4">
+        <p className="capitalize text-lg text-neutral-400">Accuracy:</p>
+        <p className="min-w-[4ch] text-2xl font-semibold tabular-nums text-foreground">{results.accuracy}%</p>
+    </div>
 
-                <div className="flex items-center w-full gap-10">
-                    <div className="flex w-full items-baseline gap-2">
-                        <p className="capitalize text-lg text-neutral-400">Time:</p>
-                        <p className="text-yellow-400 text-2xl font-semibold">{formatTime(session.time)}</p>
-                    </div>
+    <div className="flex items-baseline gap-2 pl-4">
+        <p className="capitalize text-lg text-neutral-400">Time:</p>
+        <p className="min-w-[4ch] text-left text-2xl font-semibold tabular-nums text-yellow-400">{formatTime(session.time)}</p>
+    </div>
 
-                    <div className="flex w-full items-center gap-2">
-                        <p className="capitalize text-neutral-400">Difficulty:</p>
-                        <div className={`flex gap-1.5 bg-neutral-800 border-neutral-700/90 border p-2 py-2.5 rounded-md transition-opacity duration-300 ${progress.begin ? "opacity-40 pointer-events-none" : "opacity-100"
-                            }`}>
-                            <button
-                                disabled={!!progress.begin}
-                                onClick={() => dispatch(raiseDifficulty("easy"))}
-                                className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.difficulty === "easy"
-                                    ? "border-yellow-400 bg-yellow-400/10 text-white rounded-sm border"
-                                    : "text-neutral-400 hover:text-white"
-                                    }`}
-                            >
-                                Easy
-                            </button>
-                            <button
-                                disabled={!!progress.begin}
-                                onClick={() => dispatch(raiseDifficulty("medium"))}
-                                className={`px-2 py-0.5 text-xs transition-colors ${settings.difficulty === "medium"
-                                    ? "border-yellow-400 bg-yellow-400/10 text-white rounded-sm border"
-                                    : "border-neutral-700 text-neutral-400 hover:text-white"
-                                    }`}
-                            >
-                                Medium
-                            </button>
-                            <button
-                                disabled={!!progress.begin}
-                                onClick={() => dispatch(raiseDifficulty("hard"))}
-                                className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.difficulty === "hard"
-                                    ? "border-yellow-400 bg-yellow-400/10 text-white rounded-sm border"
-                                    : "text-neutral-400 hover:text-white"
-                                    }`}
-                            >
-                                Hard
-                            </button>
-                        </div>
-                    </div>
+    <div className="flex flex-nowrap items-baseline gap-3 pl-7">
+        <div className="flex items-baseline gap-2">
+            <p className="capitalize text-neutral-400">Difficulty:</p>
+            <div className={`flex flex-nowrap gap-1.5 rounded-md border border-neutral-700/90 bg-neutral-800 px-1.5 py-2.5 transition-opacity duration-300 ${progress.begin ? "opacity-40 pointer-events-none" : "opacity-100"
+                }`}>
+                <button
+                    type="button"
+                    disabled={progress.begin}
+                    onPointerDown={(event) => {
+                        if (progress.begin) {
+                            event.preventDefault();
+                        }
+                    }}
+                    onClick={(event) => handleDifficultyChange("easy", event)}
+                    className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.difficulty === "easy"
+                        ? "border-yellow-400 bg-yellow-400/10 text-foreground rounded-sm border"
+                        : "text-neutral-400 hover:text-foreground"
+                        }`}
+                >
+                    Easy
+                </button>
+                <button
+                    type="button"
+                    disabled={progress.begin}
+                    onPointerDown={(event) => {
+                        if (progress.begin) {
+                            event.preventDefault();
+                        }
+                    }}
+                    onClick={(event) => handleDifficultyChange("medium", event)}
+                    className={`px-2 py-0.5 text-xs transition-colors ${settings.difficulty === "medium"
+                        ? "border-yellow-400 bg-yellow-400/10 text-foreground rounded-sm border"
+                        : "border-neutral-700 text-neutral-400 hover:text-foreground"
+                        }`}
+                >
+                    Medium
+                </button>
+                <button
+                    type="button"
+                    disabled={progress.begin}
+                    onPointerDown={(event) => {
+                        if (progress.begin) {
+                            event.preventDefault();
+                        }
+                    }}
+                    onClick={(event) => handleDifficultyChange("hard", event)}
+                    className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.difficulty === "hard"
+                        ? "border-yellow-400 bg-yellow-400/10 text-foreground rounded-sm border"
+                        : "text-neutral-400 hover:text-foreground"
+                        }`}
+                >
+                    Hard
+                </button>
+            </div>
+        </div>
 
-                    <div className="flex w-full items-center gap-2">
-                        <p className="capitalize text-neutral-400">Mode:</p>
-                        <div className={`flex gap-1.5 bg-neutral-800 border-neutral-700/90 border p-2 py-2.5 rounded-md transition-opacity duration-300 ${progress.begin ? "opacity-40 pointer-events-none" : "opacity-100"
-                            }`}>
-                            <button
-                                disabled={!!progress.begin}
-                                onClick={() => onSetMode("15s")}
-                                className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.timerMode === "15s"
-                                    ? "border-yellow-400 bg-yellow-400/10 text-white rounded-sm border"
-                                    : "text-neutral-400 hover:text-white"
-                                    }`}
-                            >
-                                15s
-                            </button>
-                            <button
-                                disabled={!!progress.begin}
-                                onClick={() => onSetMode("30s")}
-                                className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.timerMode === "30s"
-                                    ? "border-yellow-400 bg-yellow-400/10 text-white rounded-sm border "
-                                    : "text-neutral-400 hover:text-white"
-                                    }`}
-                            >
-                                30s
-                            </button>
-                            <button
-                                disabled={!!progress.begin}
-                                onClick={() => onSetMode("60s")}
-                                className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.timerMode === "60s"
-                                    ? "border-yellow-400 bg-yellow-400/10 text-white rounded-sm border"
-                                    : "text-neutral-400 hover:text-white"
-                                    }`}
-                            >
-                                60s
-                            </button>
-                            <button
-                                disabled={!!progress.begin}
-                                onClick={() => onSetMode("120s")}
-                                className={`px-2 py-0.5 text-xs transition-colors ${settings.timerMode === "120s"
-                                    ? "border-yellow-400 bg-yellow-400/10 text-white rounded-sm border"
-                                    : "text-neutral-400 hover:text-white"
-                                    }`}
-                            >
-                                120s
-                            </button>
-                            <button
-                                disabled={!!progress.begin}
-                                onClick={() => onSetMode("passage")}
-                                className={`px-2 py-0.5 text-xs transition-colors ${settings.timerMode === "passage"
-                                    ? "border-yellow-400 bg-yellow-400/10 text-white rounded-sm border "
-                                    : "border-neutral-700 text-neutral-400 hover:text-white"
-                                    }`}
-                            >
-                                Passage
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </section>
+        <div className="flex items-baseline gap-2">
+            <p className="capitalize text-neutral-400">Mode:</p>
+            <div className={`flex flex-nowrap gap-1.5 rounded-md border border-neutral-700/90 bg-neutral-800 px-1.5 py-2.5 transition-opacity duration-300 ${progress.begin ? "opacity-40 pointer-events-none" : "opacity-100"
+                }`}>
+                <button
+                    type="button"
+                    disabled={progress.begin}
+                    onPointerDown={(event) => {
+                        if (progress.begin) {
+                            event.preventDefault();
+                        }
+                    }}
+                    onClick={(event) => handleModeChange("15s", event)}
+                    className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.timerMode === "15s"
+                        ? "border-yellow-400 bg-yellow-400/10 text-foreground rounded-sm border"
+                        : "text-neutral-400 hover:text-foreground"
+                        }`}
+                >
+                    15s
+                </button>
+                <button
+                    type="button"
+                    disabled={progress.begin}
+                    onPointerDown={(event) => {
+                        if (progress.begin) {
+                            event.preventDefault();
+                        }
+                    }}
+                    onClick={(event) => handleModeChange("30s", event)}
+                    className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.timerMode === "30s"
+                        ? "border-yellow-400 bg-yellow-400/10 text-foreground rounded-sm border "
+                        : "text-neutral-400 hover:text-foreground"
+                        }`}
+                >
+                    30s
+                </button>
+                <button
+                    type="button"
+                    disabled={progress.begin}
+                    onPointerDown={(event) => {
+                        if (progress.begin) {
+                            event.preventDefault();
+                        }
+                    }}
+                    onClick={(event) => handleModeChange("60s", event)}
+                    className={`px-2 py-0.5 text-xs rounded-sm transition-colors ${settings.timerMode === "60s"
+                        ? "border-yellow-400 bg-yellow-400/10 text-foreground rounded-sm border"
+                        : "text-neutral-400 hover:text-foreground"
+                        }`}
+                >
+                    60s
+                </button>
+                <button
+                    type="button"
+                    disabled={progress.begin}
+                    onPointerDown={(event) => {
+                        if (progress.begin) {
+                            event.preventDefault();
+                        }
+                    }}
+                    onClick={(event) => handleModeChange("120s", event)}
+                    className={`px-2 py-0.5 text-xs transition-colors ${settings.timerMode === "120s"
+                        ? "border-yellow-400 bg-yellow-400/10 text-foreground rounded-sm border"
+                        : "text-neutral-400 hover:text-foreground"
+                        }`}
+                >
+                    120s
+                </button>
+                <button
+                    type="button"
+                    disabled={progress.begin}
+                    onPointerDown={(event) => {
+                        if (progress.begin) {
+                            event.preventDefault();
+                        }
+                    }}
+                    onClick={(event) => handleModeChange("passage", event)}
+                    className={`px-2 py-0.5 text-xs transition-colors ${settings.timerMode === "passage"
+                        ? "border-yellow-400 bg-yellow-400/10 text-foreground rounded-sm border "
+                        : "border-neutral-700 text-neutral-400 hover:text-foreground"
+                        }`}
+                >
+                    Passage
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
         </section>
     )
 }

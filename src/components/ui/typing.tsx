@@ -27,9 +27,9 @@ const settings = useAppSelector(state=>state.settings);
     }
     
     return (
-        <div className='mx-4 sm:mx-8 md:mx-32 text-xl sm:text-2xl md:text-4xl mt-6 leading-8 sm:leading-9 md:leading-12 relative'>
-            <div className='border-b-[0.8px] border-neutral-800 pb-6 sm:pb-8 md:pb-10'>
-                <div className={`h-32 sm:h-1/2 md:h-[50vh] overflow-y-auto scrollbar-hide ${!progress.begin ? "blur-sm" : "blur-none"}`}>
+        <div className='relative mx-4 mt-6 flex min-h-0 flex-1 flex-col text-xl leading-8 sm:mx-8 sm:text-2xl sm:leading-9 md:mx-32 md:text-4xl md:leading-12'>
+            <div className='flex min-h-0 flex-1 flex-col border-b-[0.8px] border-neutral-800 pb-6 sm:pb-8 md:pb-10'>
+                <div className={`h-32 min-h-0 flex-1 overflow-y-auto scrollbar-hide ${!progress.begin ? "blur-sm" : "blur-none"}`}>
                     <p
                         className={` transition-all m-4 relative text-neutral-500/60 flex flex-wrap word-break duration-300 `}
                     >
@@ -84,14 +84,15 @@ const settings = useAppSelector(state=>state.settings);
             </div>
 
             {/* Start overlay - always mounted, fades in/out */}
+            
             <div
-                className={`absolute inset-0 flex flex-col items-center justify-center text-center px-4 sm:px-6 transition-opacity duration-300 ${!progress.begin ? "opacity-100" : "opacity-0 pointer-events-none"
+                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center px-4 text-center transition-opacity duration-300 sm:px-6 md:-translate-y-24 ${!progress.begin ? "opacity-100" : "opacity-0 pointer-events-none"
                     }`}
             >
                 <Button
                     disabled={progress.begin}
                     onClick={handleStart}
-                    className='bg-blue-600 hover:bg-blue-500 text-white p-12 sm:px-8 sm:py-7 text-base sm:text-lg md:text-xl font-semibold rounded-lg shadow-lg shadow-blue-600/50 hover:shadow-xl hover:shadow-blue-500/60  transition-all duration-300 animate-pulse-glow'
+                    className='bg-blue-600 hover:bg-blue-500 text-white p-12 sm:px-8 sm:py-7 text-base sm:text-lg md:text-xl font-semibold rounded-lg hover:shadow-accent active:animate-in transition-all duration-300 animate-pulse-glow'
                 >
                     Start Typing Test
                 </Button>

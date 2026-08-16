@@ -51,7 +51,7 @@ function DialogContent({
       <DialogPrimitive.Popup
         data-slot="dialog-content"
         className={cn(
-          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-sm bg-neutral-800 p-4 text-sm text-white shadow-lg backdrop-blur-xl ring-1 ring-neutral-700/90 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
+          "fixed top-1/2 left-1/2 z-50 grid w-full max-w-[calc(100%-2rem)] -translate-x-1/2 -translate-y-1/2 gap-4 rounded-sm bg-neutral-900 p-4 text-sm text-foreground shadow-lg backdrop-blur-xl ring-1 ring-neutral-700/90 duration-100 outline-none sm:max-w-sm data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95 data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
           className
         )}
         {...props}
@@ -63,7 +63,7 @@ function DialogContent({
             render={
               <Button
                 variant="ghost"
-                className="absolute top-2 right-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent text-neutral-400 transition hover:bg-white/10 hover:text-white"
+                className="absolute top-2 right-2 inline-flex h-9 w-9 items-center justify-center rounded-full bg-transparent text-neutral-400 transition hover:bg-white/10 hover:text-foreground"
                 size="icon-sm"
               />
             }

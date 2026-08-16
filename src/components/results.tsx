@@ -20,7 +20,8 @@ const ResultPage = ({ totalPassageLength, onReset}: pageProps) => {
   const dispatch = useDispatch()
   const progress = useAppSelector((state)=>state.progress)
   // Determine title, description, and button text based on score type
-  const type = result?.history?.at(-1)?.baseline ?? 'baseline'
+  const lastResult = result?.history?.at(-1)
+  const type = lastResult?.baseline ?? 'baseline'
   const content = getResultContent(type);
     //This checks if the game has ended.
   const handleNewLevel = () => {
@@ -78,7 +79,7 @@ const ResultPage = ({ totalPassageLength, onReset}: pageProps) => {
           <div className="flex-1 bg-neutral-800 rounded-lg p-3 md:p-4 border border-neutral-700">
             <p className="text-neutral-400 text-xs md:text-sm mb-2">WPM</p>
             <p className="text-2xl md:text-3xl font-bold text-neutral-base">
-              {result.wpm}
+              {lastResult?.wpm || 0}  
             </p>
           </div>
 
@@ -86,7 +87,7 @@ const ResultPage = ({ totalPassageLength, onReset}: pageProps) => {
           <div className="flex-1 bg-neutral-800 rounded-lg p-3 md:p-4 border border-neutral-700">
             <p className="text-neutral-400 text-xs md:text-sm mb-2">Accuracy</p>
             <p className="text-2xl md:text-3xl font-bold text-red-500">
-              {result.accuracy}%
+              {lastResult?.acc || 0}%
             </p>
           </div>
 
