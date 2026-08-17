@@ -3,11 +3,13 @@ import type { Duration } from "../userSettings/settingSlice";
 
 type TimerState = {
   time: number;
+  startTime: boolean;
   isExpired: boolean;
 };
 
 const initialState: TimerState = {
   time: 60,
+  startTime: false,
   isExpired: false,
 };
 
@@ -20,6 +22,7 @@ export const timeSlice = createSlice({
     },
 
     updatedTime: (state, action: PayloadAction<Duration>) => {
+      if(!state.startTime) return
       const duration = action.payload;
 
       if (duration === "passage") { 
@@ -33,6 +36,7 @@ export const timeSlice = createSlice({
       if (state.time <= 0 ) {
         return{
             ...state,
+            startTime: false,
             isExpired: true
         }
       }
@@ -42,10 +46,13 @@ export const timeSlice = createSlice({
           time: state.time - 1
       }
     },
+    startTime:(state,action:PayloadAction<boolean>) => {
+        state.startTime = action.payload;
+    },
     resetTimer:() => initialState
   },
 });
 
-export const { setTime, updatedTime, resetTimer } = timeSlice.actions;
+export const { setTime, updatedTime, startTime, resetTimer } = timeSlice.actions;
 
 export default timeSlice.reducer;

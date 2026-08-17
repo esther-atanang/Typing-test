@@ -86,7 +86,7 @@ const Header = () => {
 
           <h2 className="text-lg font-bold uppercase text-yellow-400">
             {bestScore!.wpm}{" "}
-            <span className="text-xs text-neutral-400">WPM</span>
+            <span className="text-[0.5rem] md:text-xs text-neutral-400">WPM</span>
           </h2>
         </div>
 

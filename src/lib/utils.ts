@@ -59,6 +59,14 @@ export const getResultContent = (type:ScoreType) => {
           buttonText: 'Beat This Score',
           icon: 'checkmark'
         }
+
+        case 'average':
+        return {
+          title: 'Your Typical Average',
+          description: "You have scored this before, so try to beat it.",
+          buttonText: 'Beat This Score',
+          icon: 'checkmark'
+        }
       case 'above':
         return {
           title: 'High Score Smashed!',

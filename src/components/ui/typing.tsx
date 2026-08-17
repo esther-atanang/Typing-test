@@ -4,26 +4,25 @@ import { gameStarted } from '../../features/userProgress/gameSlice';
 import { Button } from './button';
 import { RotateCcw } from 'lucide-react';
 import { seperateText, getLetterIndex } from '../../lib/utils';
-import type { AudioTypes } from '../../App';
+
 
 interface Props {
     passage: string,
     onInputClick: (e:React.ChangeEvent<HTMLInputElement>) => void,
     onReset: () => void
-    onSound: (type: AudioTypes, isPlay: boolean) => void
+    onSound: () => void
 }
 
 const TypingArea = ({ passage, onInputClick, onReset, onSound }: Props) => {
     const inputRef = useRef<HTMLInputElement>(null);
     const progress = useAppSelector(state => state.progress);
-    const settings = useAppSelector(state => state.settings);
     const results = useAppSelector(state => state.result);
     const dispatch = useAppDispatch();
 
     const arrayOfWords = seperateText(passage, progress.typedChars);
 
     const handleStart = () => {
-        onSound('start', settings.audio);
+        onSound()
         dispatch(gameStarted(true));
 
         // Focus the hidden input so the mobile keyboard opens
@@ -66,8 +65,12 @@ const TypingArea = ({ passage, onInputClick, onReset, onSound }: Props) => {
             />
 
             <div className='flex min-h-0 flex-1 flex-col border-b-[0.8px] border-neutral-800 pb-6 sm:pb-8 md:pb-10'>
+                {/* relative wrapper scopes the start overlay to the text block's own
+                    bounding box, so it stays correctly placed over the text at any
+                    screen size instead of drifting like a container-wide top-% did */}
+                <div className='relative h-32 min-h-0 flex-1 overflow-y-auto scrollbar-hide'>
                 <div
-                    className={`h-32 min-h-0 flex-1 overflow-y-auto scrollbar-hide ${
+                    className={`min-h-full ${
                         !progress.begin ? "blur-sm" : "blur-none"
                     }`}
                 >
@@ -148,14 +151,47 @@ const TypingArea = ({ passage, onInputClick, onReset, onSound }: Props) => {
                         })}
                     </p>
                 </div>
+
+                {/*
+                  Start prompt, overlaid near the top of the text block (not
+                  centered, not pushed to the bottom). items-start + a small
+                  top offset keeps it just under the top edge of the text at
+                  any screen size, since it's anchored to the text block's own
+                  bounding box rather than a container-wide top-% guess.
+                */}
+                <div
+                    className={`absolute inset-0 flex flex-col items-center justify-start pt-10 sm:pt-14 md:pt-16 transition-opacity duration-300 ${
+                        !progress.begin
+                            ? "opacity-100"
+                            : "opacity-0 pointer-events-none"
+                    }`}
+                >
+                    <div className='flex flex-col items-center'>
+                        <Button
+                            disabled={progress.begin}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                handleStart();
+                            }}
+                            className='bg-blue-600 hover:bg-blue-500 text-white p-8 sm:px-8 sm:py-7 text-base sm:text-lg md:text-xl font-semibold rounded-lg hover:shadow-accent active:animate-in transition-all duration-300 animate-pulse-glow'
+                        >
+                            Start Typing Test
+                        </Button>
+
+                        <p className='text-xs sm:text-sm mt-3 text-neutral-400'>
+                            or click the text to start typing
+                        </p>
+                    </div>
+                </div>
+                </div>
             </div>
 
-            {/* Restart button - always mounted, fades in/out */}
+            {/* Restart button - below the text, only shown once typing has begun */}
             <div
                 className={`flex items-center justify-center p-3 sm:p-4 md:p-5 transition-opacity duration-300 ${
                     progress.begin
                         ? "opacity-100"
-                        : "opacity-0 pointer-events-none absolute inset-0"
+                        : "opacity-0 pointer-events-none"
                 }`}
             >
                 <Button
@@ -168,30 +204,6 @@ const TypingArea = ({ passage, onInputClick, onReset, onSound }: Props) => {
                     <RotateCcw className='w-4 h-4 sm:w-5 sm:h-5' />
                     Restart Test
                 </Button>
-            </div>
-
-            {/* Start overlay - always mounted, fades in/out */}
-            <div
-                className={`absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center px-4 text-center transition-opacity duration-300 sm:px-6 md:-translate-y-24 ${
-                    !progress.begin
-                        ? "opacity-100"
-                        : "opacity-0 pointer-events-none"
-                }`}
-            >
-                <Button
-                    disabled={progress.begin}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        handleStart();
-                    }}
-                    className='bg-blue-600 hover:bg-blue-500 text-white p-8 sm:px-8 sm:py-7 text-base sm:text-lg md:text-xl font-semibold rounded-lg hover:shadow-accent active:animate-in transition-all duration-300 animate-pulse-glow'
-                >
-                    Start Typing Test
-                </Button>
-
-                <p className='text-xs sm:text-sm mt-3 text-neutral-400'>
-                    or click the text to start typing
-                </p>
             </div>
         </div>
     );

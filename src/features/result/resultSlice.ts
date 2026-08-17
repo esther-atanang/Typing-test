@@ -1,3 +1,4 @@
+
 import { createSlice, type PayloadAction } from "@reduxjs/toolkit"
 import type { ScoreType } from "../../components/results"
 import { format } from "date-fns"
@@ -24,6 +25,20 @@ export const initialState: Result = {
     totalTypedWords: 0,
     correctCharacters: 0,
     history: []
+}
+
+export function calculateBaseline(currentWPM:number, history:History[]) { 
+    if (history.length > 0) {
+        const isAbove = history.every(
+            (entry) => currentWPM > entry.wpm
+        )
+        const isBelow = history.every(
+            (entry) => currentWPM < entry.wpm
+        )
+        
+        return isAbove ? "above" : (isBelow ? 'below' : 'average')
+    }
+    return "baseline"
 }
 
 export const resultSlice = createSlice({
@@ -60,51 +75,33 @@ export const resultSlice = createSlice({
             }
         },
 
-        clearResult: (state)=>{
-            return { ...initialState, history: state.history};
+        clearResult: (state) => {
+            return { ...initialState, history: state.history };
         },
 
-        setHistory:{
-            reducer (state, action:PayloadAction<{mode:string, date:string}>){
-            const currentHistory: History = {
-                wpm: state.wpm,
-                baseline: "baseline",
-                acc: state.accuracy,
-                mode: action.payload.mode,
-                date: action.payload.date
-            }
+        setHistory: {
+            reducer(state, action: PayloadAction<{ mode: string, date: string }>) {
+                const currentHistory: History = {
+                    wpm: state.wpm,
+                    baseline: calculateBaseline(state.wpm, state.history),
+                    acc: state.accuracy,
+                    mode: action.payload.mode,
+                    date: action.payload.date
+                }
             
-
-            if (state.history.length > 0) {
-                const isAbove = state.history.every(
-                    (entry) => state.wpm > entry.wpm
-                )
-
-                const isBelow = state.history.every(
-                    (entry) => state.wpm < entry.wpm
-                )
-
-                if (isAbove) {
-                    currentHistory.baseline = "above"
-                } else if (isBelow) {
-                    currentHistory.baseline = "below"
-                }
-            }
-            state.history.push(currentHistory)
-            console.log(state.history, "The history")
-            state.wpm = 0
+                state.history.push(currentHistory)
             },
-         prepare (mode:string){
-            const timestamp = new Date()
-            return{
-                payload:{
-                    mode,
-                    date: format(timestamp,'MMM yyyy')
+            prepare(mode: string) {
+                const timestamp = new Date()
+                return {
+                    payload: {
+                        mode,
+                        date: format(timestamp, 'MMM yyyy')
+                    }
                 }
             }
-         }
         }
-    }, 
+    },
 })
 
 export const {

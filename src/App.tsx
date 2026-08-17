@@ -2,15 +2,39 @@ import Header from "./components/header";
 import Menu from "./components/Menu";
 import ResultPage from "./components/results";
 import TypingArea from "./components/ui/typing";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import data from './assets/data.json' with {type: 'json'}
 import { useAppDispatch, useAppSelector } from "./app/hooks";
 import { setDuration, type Duration } from "./features/userSettings/settingSlice";
-import { setTime, updatedTime } from "./features/timer/timingSlice";
+import { setTime, startTime, updatedTime } from "./features/timer/timingSlice";
 import { gameStarted, updatedNumberOfTypedChars, resetProgress, setPrevWordLength, updatedWordCount } from "./features/userProgress/gameSlice";
 import { updateResult, setWPM, setHistory, clearResult } from "./features/result/resultSlice";
 import { calculateWPM, getElaspedTime, getTimer } from "./lib/utils";
 import { Error, KeyPressed, Start, Success } from "./assets";
+
+ function sound(type: AudioTypes, isPlay: boolean, audioRef:React.RefObject<HTMLAudioElement|null>) {
+    if (audioRef.current !== null) {
+      audioRef.current.pause()
+
+    }
+    audioRef.current = new Audio();
+    if (isPlay) {
+      switch (type) {
+        case 'success':
+          audioRef.current.src = Success;
+          return audioRef.current.play()
+        case 'error':
+          audioRef.current.src = Error;
+          return audioRef.current.play();
+        case 'pressed':
+          audioRef.current.src = KeyPressed;
+          return audioRef.current.play();
+        case 'start':
+          audioRef.current.src = Start;
+          return audioRef.current.play();
+      }
+    }
+  }
 
 
 export type AudioTypes = 'success' | 'error' | 'start' | 'pressed'
@@ -36,38 +60,13 @@ const App = () => {
   const audioRef = useRef<HTMLAudioElement>(null)
 
 
-
-  function sound(type: AudioTypes, isPlay: boolean) {
-    if (audioRef.current !== null) {
-      audioRef.current.pause()
-
-    }
-    audioRef.current = new Audio();
-    if (isPlay) {
-      switch (type) {
-        case 'success':
-          audioRef.current.src = Success;
-          return audioRef.current.play()
-        case 'error':
-          audioRef.current.src = Error;
-          return audioRef.current.play();
-        case 'pressed':
-          audioRef.current.src = KeyPressed;
-          return audioRef.current.play();
-        case 'start':
-          audioRef.current.src = Start;
-          return audioRef.current.play();
-      }
-    }
-  }
-
   //Timer
   useEffect(() => {
     const timingFunction = (mode: Duration) => {
       return setInterval(() => {
         dispatch(updatedTime(mode))
         if (session.isExpired) {
-          sound('success', settings.audio) //TODO: test how this works with the timerr
+          sound('success', settings.audio,audioRef) //TODO: test how this works with the timerr
           dispatch(gameStarted(false))
           dispatch(setHistory(mode))
         }
@@ -77,7 +76,7 @@ const App = () => {
     if (progress.begin) timerRef.current = timingFunction(settings.timerMode)
 
     return () => clearInterval(timerRef.current)
-  }, [progress.begin, dispatch, settings.timerMode, session.isExpired, settings.audio, results.totalTypedWords])
+  }, [progress.begin, dispatch, settings.timerMode, session.isExpired, settings.audio])
 
 
 
@@ -88,7 +87,6 @@ const App = () => {
     dispatch(setWPM(updateWpm))
 
   }, [session.time, dispatch, results.totalTypedWords, settings.timerMode])
-
 
 
 
@@ -121,12 +119,17 @@ const App = () => {
 
     const NumOftotalTypedCharacters = results.totalTypedWords + 1;
 
+    if(NumOftotalTypedCharacters === 1){
+        dispatch(startTime(true))
+    }
+
     const correctCharacters =
       results.correctCharacters + isCorrectlyTyped;
 
     sound(
       isCorrectlyTyped ? "pressed" : "error",
-      settings.audio
+      settings.audio,
+      audioRef
     );
 
     const updatedAccur = Math.round(
@@ -146,7 +149,7 @@ const App = () => {
     e.target.value = "";
 
     if (NumOftotalTypedCharacters === passageText.length) {
-      sound("success", settings.audio);
+      sound("success", settings.audio, audioRef);
       dispatch(gameStarted(false));
       dispatch(setHistory(settings.timerMode));
     }
@@ -181,7 +184,7 @@ const App = () => {
           />
           <TypingArea
             onInputClick={handleInput}
-            onSound={sound}
+            onSound={()=>sound('start',true,audioRef)}
             onReset={handleReset}
             passage={passageText}
           />

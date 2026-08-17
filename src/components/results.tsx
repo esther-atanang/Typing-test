@@ -7,8 +7,9 @@ import { gameStarted } from '../features/userProgress/gameSlice';
 import { raiseLevel } from '../features/userSettings/settingSlice';
 import { getResultContent } from '../lib/utils';
 import { resetTimer } from '../features/timer/timingSlice';
+import { calculateBaseline, resultSlice } from '../features/result/resultSlice';
 
-export type ScoreType = 'baseline' | 'below' | 'above'
+export type ScoreType = 'baseline' | 'below' | 'above' | 'average'
 
 interface pageProps {
   totalPassageLength: number,
@@ -20,13 +21,13 @@ const ResultPage = ({ totalPassageLength, onReset}: pageProps) => {
   const dispatch = useDispatch()
   const progress = useAppSelector((state)=>state.progress)
   // Determine title, description, and button text based on score type
-  const lastResult = result?.history?.at(-1)
-  const type = lastResult?.baseline ?? 'baseline'
+
+  const type = result.history.at(-1)!.baseline || "-"
   const content = getResultContent(type);
     //This checks if the game has ended.
   const handleNewLevel = () => {
       onReset();
-      dispatch(raiseLevel()) //TODO: fix this, it uses a placeholder
+      dispatch(raiseLevel()) 
       dispatch(gameStarted(true))
       dispatch(resetTimer())
   }
@@ -79,15 +80,15 @@ const ResultPage = ({ totalPassageLength, onReset}: pageProps) => {
           <div className="flex-1 bg-neutral-800 rounded-lg p-3 md:p-4 border border-neutral-700">
             <p className="text-neutral-400 text-xs md:text-sm mb-2">WPM</p>
             <p className="text-2xl md:text-3xl font-bold text-neutral-base">
-              {lastResult?.wpm || 0}  
+              {result?.history.at(-1)?.wpm || "-"}  
             </p>
           </div>
 
           {/* Accuracy Stat */}
           <div className="flex-1 bg-neutral-800 rounded-lg p-3 md:p-4 border border-neutral-700">
             <p className="text-neutral-400 text-xs md:text-sm mb-2">Accuracy</p>
-            <p className={`text-2xl md:text-3xl font-bold ${ Math.max(lastResult?.acc || 0, 0) < 50 ? 'text-red-500' : 'text-green-500'}`}>
-              {lastResult?.acc || 0}%
+            <p className={`text-2xl md:text-3xl font-bold ${ Math.max(result.accuracy, 0) < 50 ? 'text-red-500' : 'text-green-500'}`}>
+              {result.accuracy}%
             </p>
           </div>
 
